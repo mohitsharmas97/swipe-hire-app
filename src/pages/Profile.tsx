@@ -157,12 +157,49 @@ const Profile = () => {
           </CardHeader>
           <CardContent className="px-4 pb-4 sm:px-6 sm:pb-5 space-y-4">
             <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start sm:gap-5">
-              <Avatar className="w-20 h-20 sm:w-24 sm:h-24 flex-shrink-0">
-                <AvatarImage src={user.avatar} alt={user.name} />
-                <AvatarFallback className="text-xl sm:text-2xl font-semibold gradient-primary text-white">
-                  {getInitials(user.name)}
-                </AvatarFallback>
-              </Avatar>
+              <div className="relative w-20 h-20 sm:w-24 sm:h-24">
+                <Avatar className="w-full h-full">
+                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarFallback className="text-xl sm:text-2xl font-semibold gradient-primary text-white">
+                    {getInitials(user.name)}
+                  </AvatarFallback>
+                </Avatar>
+
+                {/* Camera Icon Overlay */}
+                <label
+                  htmlFor="avatar-upload"
+                  className="absolute bottom-0 right-0 bg-primary text-white rounded-full p-1.5 cursor-pointer shadow-md hover:scale-105 transition-transform"
+                >
+                  <Edit className="w-4 h-4" />
+                </label>
+
+                {/* Hidden File Input */}
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/png,image/jpeg,image/jpg"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const validTypes = ["image/png", "image/jpeg", "image/jpg"];
+                      if (!validTypes.includes(file.type)) {
+                        toast.error("Please upload a valid image (PNG, JPG, JPEG)");
+                        return;
+                      }
+
+                      const reader = new FileReader();
+                      reader.onload = () => {
+                        const imageUrl = reader.result as string;
+                        setUser((prev) => ({ ...prev, avatar: imageUrl }));
+                        toast.success("Profile picture updated!");
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </div>
+
               <div className="text-center sm:text-left flex-1 w-full">
                 <h2 className="text-lg sm:text-xl font-bold">{user.name}</h2>
                 <p className="text-sm sm:text-base text-muted-foreground mt-0.5">{user.role}</p>
