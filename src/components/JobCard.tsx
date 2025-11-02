@@ -1,3 +1,4 @@
+// src/components/JobCard.tsx
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Badge } from "@/components/ui/badge";
@@ -31,16 +32,12 @@ const JobCard = ({
   onViewDetails,
   style,
 }: JobCardProps) => {
-  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(
-    null
-  );
+  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [liked, setLiked] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
-  const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(
-    null
-  );
+  const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null);
 
   const triggerVanish = (direction: "left" | "right") => {
     setSwipeDirection(direction);
@@ -65,25 +62,28 @@ const JobCard = ({
     }
   };
 
-  // --- Mouse Events ---
+  // Mouse Events
   const handleMouseDown = (e: React.MouseEvent) => {
     setDragStart({ x: e.clientX, y: e.clientY });
     setIsDragging(true);
   };
+
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!dragStart || !isDragging) return;
     const deltaX = e.clientX - dragStart.x;
     const deltaY = e.clientY - dragStart.y;
     setDragOffset({ x: deltaX, y: deltaY });
   };
+
   const handleMouseUp = () => endDrag();
 
-  // --- Touch Events ---
+  // Touch Events
   const handleTouchStart = (e: React.TouchEvent) => {
     const touch = e.touches[0];
     setDragStart({ x: touch.clientX, y: touch.clientY });
     setIsDragging(true);
   };
+
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!dragStart || !isDragging) return;
     const touch = e.touches[0];
@@ -95,6 +95,7 @@ const JobCard = ({
     }
     setDragOffset({ x: deltaX, y: deltaY });
   };
+
   const handleTouchEnd = () => endDrag();
 
   const rotation = dragOffset.x * 0.1;
@@ -166,37 +167,38 @@ const JobCard = ({
               </div>
 
               <div className="flex-1 min-w-0">
-                <h3 className="text-lg sm:text-xl font-semibold mb-1 truncate">
+                <h3 className="text-lg sm:text-xl font-semibold mb-1 line-clamp-2 leading-tight">
                   {job.title}
                 </h3>
                 <p className="text-muted-foreground text-sm truncate flex items-center gap-1">
-                  <Building className="h-4 w-4" /> {job.company}
+                  <Building className="h-4 w-4 flex-shrink-0" />
+                  <span className="truncate">{job.company}</span>
                 </p>
               </div>
 
-              <Badge className="bg-primary/10 text-primary border-primary/20 text-xs sm:text-sm">
-                <Star className="h-3 w-3 mr-1 inline-block" />{" "}
-                {job.rating.toFixed(1)}
+              {/* Rating badge - positioned lower for better visibility */}
+              <Badge className="bg-primary/10 text-primary border-primary/20 text-[11px] sm:text-sm mt-8 sm:mt-10 px-2 sm:px-3 py-0.5 sm:py-1 rounded-md flex-shrink-0">
+                <Star className="h-3 w-3 mr-1 inline-block" /> {job.rating.toFixed(1)}
               </Badge>
             </div>
 
-            {/* Info */}
+            {/* Info Grid */}
             <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4">
-              <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground truncate">
-                <MapPin className="h-4 w-4" />
-                {job.location}
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
+                <MapPin className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">{job.location}</span>
               </div>
-              <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground truncate">
-                <IndianRupee className="h-4 w-4" />
-                {formatSalary(job.salary)}
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
+                <IndianRupee className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">{formatSalary(job.salary)}</span>
               </div>
-              <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground truncate">
-                <Briefcase className="h-4 w-4" />
-                {job.jobType}
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
+                <Briefcase className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">{job.jobType}</span>
               </div>
-              <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground truncate">
-                <Clock className="h-4 w-4" />
-                {job.postedAgo}
+              <div className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
+                <Clock className="h-4 w-4 flex-shrink-0" />
+                <span className="truncate">{job.postedAgo}</span>
               </div>
             </div>
 
@@ -224,62 +226,41 @@ const JobCard = ({
             </p>
 
             {/* Actions */}
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 sm:gap-3 mb-8 sm:mb-6">
               <Button
+                variant={liked ? "default" : "outline"}
                 size="sm"
-                variant="outline"
-                className="flex-1 text-xs sm:text-sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  triggerVanish("left");
-                }}
-              >
-                Skip
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={(e) => {
-                  e.stopPropagation();
+                className="flex-1 py-2 sm:py-3"
+                onClick={() => {
                   setLiked(!liked);
                   onSave();
                 }}
               >
                 <Heart
                   className={cn(
-                    "h-4 w-4 sm:h-5 sm:w-5 transition-colors",
-                    liked ? "text-red-500 fill-red-500" : "text-muted-foreground"
+                    "h-4 w-4 mr-2",
+                    liked && "fill-current text-destructive"
                   )}
                 />
-              </Button>
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onViewDetails();
-                }}
-              >
-                <Info className="h-4 w-4 sm:h-5 sm:w-5" />
+                {liked ? "Saved" : "Save"}
               </Button>
               <Button
                 size="sm"
-                className="flex-1 text-xs sm:text-sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  triggerVanish("right");
-                }}
+                className="flex-1 py-2 sm:py-3"
+                onClick={onViewDetails}
               >
-                Apply
+                <Info className="h-4 w-4 mr-2" />
+                Details
               </Button>
             </div>
-          </div>
 
-          {!isDragging && (
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] sm:text-xs text-muted-foreground">
-              Drag or swipe to interact
-            </div>
-          )}
+            {/* Drag instruction - only show when not dragging */}
+            {!isDragging && (
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] sm:text-xs text-muted-foreground text-center whitespace-nowrap pointer-events-none">
+                Drag or swipe to interact
+              </div>
+            )}
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

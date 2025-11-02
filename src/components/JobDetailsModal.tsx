@@ -48,8 +48,8 @@ const JobDetailsModal = ({
           <div className="p-4 sm:p-6">
             {/* Header */}
             <DialogHeader className="mb-6">
-              <div className="flex flex-col sm:flex-row sm:items-start gap-4">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-secondary flex items-center justify-center text-2xl sm:text-3xl font-bold text-primary shadow-glow">
+              <div className="flex items-start gap-4">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-secondary flex items-center justify-center text-2xl sm:text-3xl font-bold text-primary shadow-glow flex-shrink-0">
                   {job.companyLogo ? (
                     <img
                       src={job.companyLogo}
@@ -61,20 +61,22 @@ const JobDetailsModal = ({
                   )}
                 </div>
 
-                <div className="flex-1">
-                  <DialogTitle className="text-xl sm:text-3xl mb-2">
+                <div className="flex-1 min-w-0">
+                  <DialogTitle className="text-xl sm:text-3xl mb-3 line-clamp-2 leading-tight text-left">
                     {job.title}
                   </DialogTitle>
-                  <p className="text-sm sm:text-lg text-muted-foreground flex items-center gap-2">
-                    <Building className="h-4 w-4 sm:h-5 sm:w-5" />
-                    {job.company}
-                  </p>
+                  <div className="flex items-center gap-3">
+                    <p className="text-sm sm:text-lg text-muted-foreground flex items-center gap-2 flex-1 min-w-0">
+                      <Building className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                      <span className="truncate">{job.company}</span>
+                    </p>
+                    {/* Rating badge - aligned with company name */}
+                    <Badge className="bg-primary/10 text-primary border-primary/20 text-xs sm:text-sm px-2.5 sm:px-3 py-1 rounded-md flex-shrink-0">
+                      <Star className="h-3 w-3 sm:h-3.5 sm:w-3.5 mr-1 inline-block fill-current" /> {job.rating.toFixed(1)}
+                    </Badge>
+                  </div>
                 </div>
 
-                <Badge className="self-start sm:self-center bg-primary/10 text-primary border-primary/20 text-sm sm:text-base px-3 py-1">
-                  <Star className="h-3 w-3 mr-1 inline-block" />{" "}
-                  {job.rating.toFixed(1)}
-                </Badge>
               </div>
             </DialogHeader>
 
@@ -82,7 +84,7 @@ const JobDetailsModal = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6">
               <div className="glass p-3 sm:p-4 rounded-xl">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm mb-1">
-                  <MapPin className="h-4 w-4" />
+                  <MapPin className="h-4 w-4 flex-shrink-0" />
                   <span className="font-medium">Location</span>
                 </div>
                 <p className="font-semibold text-sm sm:text-base">
@@ -91,7 +93,7 @@ const JobDetailsModal = ({
               </div>
               <div className="glass p-3 sm:p-4 rounded-xl">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm mb-1">
-                  <IndianRupee className="h-4 w-4" />
+                  <IndianRupee className="h-4 w-4 flex-shrink-0" />
                   <span className="font-medium">Salary</span>
                 </div>
                 <p className="font-semibold text-sm sm:text-base">
@@ -100,7 +102,7 @@ const JobDetailsModal = ({
               </div>
               <div className="glass p-3 sm:p-4 rounded-xl">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm mb-1">
-                  <Briefcase className="h-4 w-4" />
+                  <Briefcase className="h-4 w-4 flex-shrink-0" />
                   <span className="font-medium">Job Type</span>
                 </div>
                 <p className="font-semibold text-sm sm:text-base">
@@ -109,7 +111,7 @@ const JobDetailsModal = ({
               </div>
               <div className="glass p-3 sm:p-4 rounded-xl">
                 <div className="flex items-center gap-2 text-muted-foreground text-xs sm:text-sm mb-1">
-                  <Clock className="h-4 w-4" />
+                  <Clock className="h-4 w-4 flex-shrink-0" />
                   <span className="font-medium">Posted</span>
                 </div>
                 <p className="font-semibold text-sm sm:text-base">
@@ -122,7 +124,7 @@ const JobDetailsModal = ({
             {job.benefits.length > 0 && (
               <div className="mb-6">
                 <h3 className="font-semibold mb-2 sm:mb-3 text-sm sm:text-base flex items-center gap-2">
-                  <Sparkles className="h-4 w-4" />
+                  <Sparkles className="h-4 w-4 flex-shrink-0" />
                   Benefits
                 </h3>
                 <div className="flex flex-wrap gap-1.5 sm:gap-2">
@@ -143,7 +145,7 @@ const JobDetailsModal = ({
             {job.qualifications.length > 0 && (
               <div className="mb-6">
                 <h3 className="font-semibold mb-2 sm:mb-3 text-sm sm:text-base flex items-center gap-2">
-                  <ClipboardList className="h-4 w-4" />
+                  <ClipboardList className="h-4 w-4 flex-shrink-0" />
                   Qualifications
                 </h3>
                 <ul className="list-disc list-inside text-xs sm:text-sm text-muted-foreground space-y-1">
@@ -157,35 +159,39 @@ const JobDetailsModal = ({
             {/* --- Full Description --- */}
             <div className="mb-6">
               <h3 className="font-semibold mb-2 sm:mb-3 text-sm sm:text-base flex items-center gap-2">
-                <Layers className="h-4 w-4" />
+                <Layers className="h-4 w-4 flex-shrink-0" />
                 Role Details
               </h3>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3 text-xs sm:text-sm text-muted-foreground">
                 <p className="flex items-center gap-1">
-                  <Sparkles className="h-3 w-3" /> {job.fullDescription.category}
+                  <Sparkles className="h-3 w-3 flex-shrink-0" />
+                  <span className="truncate">{job.fullDescription.category}</span>
                 </p>
                 <p className="flex items-center gap-1">
-                  <Timer className="h-3 w-3" /> {job.fullDescription.duration}
+                  <Timer className="h-3 w-3 flex-shrink-0" />
+                  <span className="truncate">{job.fullDescription.duration}</span>
                 </p>
                 <p className="flex items-center gap-1">
-                  <Laptop className="h-3 w-3" /> {job.fullDescription.workMode}
+                  <Laptop className="h-3 w-3 flex-shrink-0" />
+                  <span className="truncate">{job.fullDescription.workMode}</span>
                 </p>
                 <p className="flex items-center gap-1">
-                  <IndianRupee className="h-3 w-3" /> {job.fullDescription.stipend}
+                  <IndianRupee className="h-3 w-3 flex-shrink-0" />
+                  <span className="truncate">{job.fullDescription.stipend}</span>
                 </p>
               </div>
 
               <div className="prose prose-sm max-w-none text-muted-foreground">
                 {job.fullDescription.description.map((d, i) => (
-                  <p key={i} className="mb-2">
+                  <p key={i} className="mb-2 text-xs sm:text-sm">
                     {d}
                   </p>
                 ))}
-                <h4 className="mt-3 font-semibold text-foreground">
+                <h4 className="mt-3 font-semibold text-foreground text-sm sm:text-base">
                   Requirements:
                 </h4>
-                <ul className="list-disc list-inside space-y-1">
+                <ul className="list-disc list-inside space-y-1 text-xs sm:text-sm">
                   {job.fullDescription.requirements.map((r, i) => (
                     <li key={i}>{r}</li>
                   ))}
