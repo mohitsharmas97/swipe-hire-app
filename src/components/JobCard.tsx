@@ -1,8 +1,8 @@
-// src/components/JobCard.tsx
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { toast } from "sonner"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
   MapPin,
   Clock,
@@ -12,21 +12,21 @@ import {
   IndianRupee,
   Building,
   Star,
-} from "lucide-react";
-import { cn } from "@/lib/utils";
+} from "lucide-react"
+import { cn } from "@/lib/utils"
 import {
   formatSalary,
   getCompanyColorStyle,
   getCompanyInitials,
-} from "@/utils/jobUtils";
-import { Job } from "@/types/jobs";
+} from "@/utils/jobUtils"
+import { Job } from "@/types/jobs"
 
 interface JobCardProps {
-  job: Job;
-  onSwipe: (direction: "left" | "right") => void;
-  onSave: () => void;
-  onViewDetails: () => void;
-  style?: React.CSSProperties;
+  job: Job
+  onSwipe: (direction: "left" | "right") => void
+  onSave: () => void
+  onViewDetails: () => void
+  style?: React.CSSProperties
 }
 
 const JobCard = ({
@@ -36,74 +36,74 @@ const JobCard = ({
   onViewDetails,
   style,
 }: JobCardProps) => {
-  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(
-    null
-  );
-  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [liked, setLiked] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
-  const [swipeDirection, setSwipeDirection] = useState<
-    "left" | "right" | null
-  >(null);
+  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null)
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
+  const [isDragging, setIsDragging] = useState(false)
+  const [liked, setLiked] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
+  const [swipeDirection, setSwipeDirection] = useState<"left" | "right" | null>(null)
 
   const triggerVanish = (direction: "left" | "right") => {
-    setSwipeDirection(direction);
-    setIsVisible(false);
-    setTimeout(() => onSwipe(direction), 300);
-  };
+    setSwipeDirection(direction)
+    setIsVisible(false)
+    setTimeout(() => onSwipe(direction), 300)
+  }
 
   const resetPosition = () => {
-    setDragStart(null);
-    setDragOffset({ x: 0, y: 0 });
-    setIsDragging(false);
-  };
+    setDragStart(null)
+    setDragOffset({ x: 0, y: 0 })
+    setIsDragging(false)
+  }
 
   const endDrag = () => {
-    if (!isDragging) return;
-    const threshold = 100;
+    if (!isDragging) return
+    const threshold = 100
     if (Math.abs(dragOffset.x) > threshold) {
-      const direction = dragOffset.x > 0 ? "right" : "left";
-      triggerVanish(direction);
+      const direction = dragOffset.x > 0 ? "right" : "left"
+      triggerVanish(direction)
     } else {
-      resetPosition();
+      resetPosition()
     }
-  };
+  }
 
   // Mouse Events
   const handleMouseDown = (e: React.MouseEvent) => {
-    setDragStart({ x: e.clientX, y: e.clientY });
-    setIsDragging(true);
-  };
+    setDragStart({ x: e.clientX, y: e.clientY })
+    setIsDragging(true)
+  }
+
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!dragStart || !isDragging) return;
-    const deltaX = e.clientX - dragStart.x;
-    const deltaY = e.clientY - dragStart.y;
-    setDragOffset({ x: deltaX, y: deltaY });
-  };
-  const handleMouseUp = () => endDrag();
+    if (!dragStart || !isDragging) return
+    const deltaX = e.clientX - dragStart.x
+    const deltaY = e.clientY - dragStart.y
+    setDragOffset({ x: deltaX, y: deltaY })
+  }
+
+  const handleMouseUp = () => endDrag()
 
   // Touch Events
   const handleTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    setDragStart({ x: touch.clientX, y: touch.clientY });
-    setIsDragging(true);
-  };
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (!dragStart || !isDragging) return;
-    const touch = e.touches[0];
-    const deltaX = touch.clientX - dragStart.x;
-    const deltaY = touch.clientY - dragStart.y;
-    if (Math.abs(deltaY) > Math.abs(deltaX)) {
-      resetPosition();
-      return;
-    }
-    setDragOffset({ x: deltaX, y: deltaY });
-  };
-  const handleTouchEnd = () => endDrag();
+    const touch = e.touches[0]
+    setDragStart({ x: touch.clientX, y: touch.clientY })
+    setIsDragging(true)
+  }
 
-  const rotation = dragOffset.x * 0.1;
-  const opacity = Math.max(0, Math.min(1, Math.abs(dragOffset.x) / 100));
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!dragStart || !isDragging) return
+    const touch = e.touches[0]
+    const deltaX = touch.clientX - dragStart.x
+    const deltaY = touch.clientY - dragStart.y
+    if (Math.abs(deltaY) > Math.abs(deltaX)) {
+      resetPosition()
+      return
+    }
+    setDragOffset({ x: deltaX, y: deltaY })
+  }
+
+  const handleTouchEnd = () => endDrag()
+
+  const rotation = dragOffset.x * 0.1
+  const opacity = Math.max(0, Math.min(1, Math.abs(dragOffset.x) / 100))
 
   return (
     <AnimatePresence>
@@ -163,15 +163,15 @@ const JobCard = ({
                     alt={job.company}
                     className="w-full h-full object-cover rounded-xl"
                     onError={(e) => {
-                      const target = e.currentTarget;
-                      target.style.display = "none";
-                      const fallback = target.nextElementSibling as HTMLElement;
-                      if (fallback) fallback.style.display = "flex";
+                      const target = e.currentTarget
+                      target.style.display = "none"
+                      const fallback = target.nextElementSibling as HTMLElement
+                      if (fallback) fallback.style.display = "flex"
                     }}
                   />
                 ) : null}
 
-                {/* Gradient fallback initials */}
+                {/* Gradient Fallback */}
                 <div
                   className="absolute inset-0 flex items-center justify-center uppercase"
                   style={getCompanyColorStyle(job.company)}
@@ -234,7 +234,7 @@ const JobCard = ({
               )}
             </div>
 
-            {/* Short Description */}
+            {/* Description */}
             <p className="text-xs sm:text-sm text-muted-foreground line-clamp-3 mb-5">
               {job.fullDescription.description[0]}
             </p>
@@ -244,23 +244,40 @@ const JobCard = ({
               <Button
                 variant={liked ? "default" : "outline"}
                 size="sm"
-                className="flex-1 py-2 sm:py-3"
+                className="flex-1 py-2 sm:py-3 flex items-center justify-center"
                 onClick={() => {
-                  setLiked(!liked);
-                  onSave();
+                  const newLiked = !liked
+                  setLiked(newLiked)
+                  onSave()
+
+                  if (newLiked) {
+                    toast.success("Job saved to favorites!")
+                  } else {
+                    toast.info("Job removed from favorites.")
+                  }
                 }}
               >
-                <Heart
-                  className={cn(
-                    "h-4 w-4 mr-2",
-                    liked && "fill-current text-destructive"
-                  )}
-                />
+                <motion.span
+                  initial={{ scale: 1 }}
+                  animate={{ scale: liked ? 1.3 : 1 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 12 }}
+                  className="flex items-center"
+                >
+                  <Heart
+                    className={cn(
+                      "h-4 w-4 mr-2 transition-colors duration-300",
+                      liked
+                        ? "fill-current text-destructive"
+                        : "text-muted-foreground"
+                    )}
+                  />
+                </motion.span>
                 {liked ? "Saved" : "Save"}
               </Button>
+
               <Button
                 size="sm"
-                className="flex-1 py-2 sm:py-3"
+                className="flex-1 py-2 sm:py-3 flex items-center justify-center"
                 onClick={onViewDetails}
               >
                 <Info className="h-4 w-4 mr-2" />
@@ -268,7 +285,7 @@ const JobCard = ({
               </Button>
             </div>
 
-            {/* Drag instruction */}
+            {/* Drag Hint */}
             {!isDragging && (
               <div className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] sm:text-xs text-muted-foreground text-center whitespace-nowrap pointer-events-none">
                 Drag or swipe to interact
@@ -278,7 +295,7 @@ const JobCard = ({
         </motion.div>
       )}
     </AnimatePresence>
-  );
-};
+  )
+}
 
-export default JobCard;
+export default JobCard
