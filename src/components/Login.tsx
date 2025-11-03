@@ -4,18 +4,23 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Eye, EyeOff, Mail, Lock } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import logo from "@/assets/logo.png";
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode"; // ✅ correct named import
-import { useAuth } from "@/hooks/useAuth"; // ✅ reuse your hook
+import { jwtDecode } from "jwt-decode";
+import { useAuth } from "@/hooks/useAuth";
 
 interface GoogleUser {
   name?: string;
   email?: string;
   picture?: string;
   sub?: string;
+}
+
+interface ValidationErrors {
+  email?: string;
+  password?: string;
 }
 
 const Login = () => {
@@ -27,9 +32,60 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<ValidationErrors>({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  // Validation functions
+  const validateEmail = (email: string): string | undefined => {
+    if (!email) return "Email is required";
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) return "Please enter a valid email address";
+    return undefined;
+  };
+
+  const validatePassword = (password: string): string | undefined => {
+    if (!password) return "Password is required";
+    if (password.length < 6) return "Password must be at least 6 characters long";
+    return undefined;
+  };
+
+  // Validate all fields
+  const validateForm = (): boolean => {
+    const newErrors: ValidationErrors = {
+      email: validateEmail(email),
+      password: validatePassword(password),
+    };
+
+    setErrors(newErrors);
+    return !Object.values(newErrors).some(error => error !== undefined);
+  };
+
+  // Handle field blur for real-time validation
+  const handleBlur = (field: "email" | "password") => {
+    setTouched({ ...touched, [field]: true });
+    
+    let error: string | undefined;
+    if (field === "email") {
+      error = validateEmail(email);
+    } else if (field === "password") {
+      error = validatePassword(password);
+    }
+    
+    setErrors({ ...errors, [field]: error });
+  };
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Mark all fields as touched
+    setTouched({ email: true, password: true });
+
+    // Validate form
+    if (!validateForm()) {
+      toast.error("Please fix the errors in the form");
+      return;
+    }
+
     setLoading(true);
 
     setTimeout(() => {
@@ -56,6 +112,10 @@ const Login = () => {
         avatar: decoded.picture,
       };
       handleLoginSuccess(response.credential, user);
+      toast.success(`Welcome back, ${user.name}!`);
+      
+      const hasOnboarded = localStorage.getItem("onboarding_completed");
+      navigate(hasOnboarded ? "/feed" : "/onboarding");
     } catch (err) {
       console.error("Google login error:", err);
       toast.error("Google login failed. Please try again.");
@@ -81,6 +141,7 @@ const Login = () => {
         {/* Form */}
         <div className="bg-card/60 backdrop-blur-md rounded-2xl p-5 sm:p-8 shadow-lg border border-border animate-fade-in-scale">
           <form onSubmit={handleLogin} className="space-y-5">
+            {/* Email */}
             <div>
               <Label htmlFor="email">Email</Label>
               <div className="relative mt-1">
@@ -91,12 +152,20 @@ const Login = () => {
                   placeholder="you@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-10 text-sm"
+                  onBlur={() => handleBlur("email")}
+                  className={`pl-10 text-sm ${touched.email && errors.email ? 'border-red-500' : ''}`}
                   required
                 />
+                {touched.email && errors.email && (
+                  <div className="flex items-center gap-1 mt-1 text-xs text-red-500">
+                    <AlertCircle className="w-3 h-3" />
+                    <span>{errors.email}</span>
+                  </div>
+                )}
               </div>
             </div>
 
+            {/* Password */}
             <div>
               <Label htmlFor="password">Password</Label>
               <div className="relative mt-1">
@@ -107,7 +176,8 @@ const Login = () => {
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="pl-10 pr-10 text-sm"
+                  onBlur={() => handleBlur("password")}
+                  className={`pl-10 pr-10 text-sm ${touched.password && errors.password ? 'border-red-500' : ''}`}
                   required
                 />
                 <button
@@ -117,9 +187,16 @@ const Login = () => {
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
+                {touched.password && errors.password && (
+                  <div className="flex items-center gap-1 mt-1 text-xs text-red-500">
+                    <AlertCircle className="w-3 h-3" />
+                    <span>{errors.password}</span>
+                  </div>
+                )}
               </div>
             </div>
 
+            {/* Remember Me & Forgot Password */}
             <div className="flex items-center justify-between text-xs sm:text-sm">
               <div className="flex items-center gap-2">
                 <Checkbox
@@ -136,6 +213,7 @@ const Login = () => {
               </Button>
             </div>
 
+            {/* Submit */}
             <Button type="submit" size="lg" className="w-full" disabled={loading}>
               {loading ? "Logging in..." : "Login"}
             </Button>
@@ -161,8 +239,9 @@ const Login = () => {
             />
           </div>
 
+          {/* Footer */}
           <p className="text-center text-xs sm:text-sm text-muted-foreground mt-6">
-            Don’t have an account?{" "}
+            Don't have an account?{" "}
             <Button variant="link" className="h-auto p-0" onClick={() => navigate("/signup")}>
               Sign up
             </Button>
