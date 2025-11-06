@@ -325,7 +325,224 @@ const Onboarding = () => {
               </motion.div>
             )}
 
-            {/* Other steps remain same (Skills, Preferences, Resume, etc.) */}
+          
+            {/* Step 3: Skills */}
+            {step === 3 && (
+              <motion.div
+                key="step3"
+                variants={fadeSlide}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={{ duration: 0.4 }}
+                className="space-y-6"
+              >
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full gradient-primary flex items-center justify-center">
+                    <span className="text-3xl">🎯</span>
+                  </div>
+                  <h3 className="text-2xl font-semibold mb-1">Your Skills</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Pick what defines your strengths
+                  </p>
+                </div>
+
+                <div className="flex flex-wrap gap-2 justify-center">
+                  {visibleSkills.map((skill) => (
+                    <motion.div
+                      key={skill}
+                      whileTap={{ scale: 0.9 }}
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <Badge
+                        variant={
+                          selectedSkills.includes(skill)
+                            ? "default"
+                            : "outline"
+                        }
+                        className="cursor-pointer text-sm py-2 px-4"
+                        onClick={() => toggleSkill(skill)}
+                      >
+                        {skill}
+                      </Badge>
+                    </motion.div>
+                  ))}
+                </div>
+
+                <div className="text-center mt-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() =>
+                      setVisibleCount(hasMore ? visibleCount + 10 : 10)
+                    }
+                    className="rounded-full"
+                  >
+                    {hasMore ? "Show More" : "Show Less"}
+                  </Button>
+                </div>
+
+                {selectedSkills.length > 0 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mt-6 p-4 glass rounded-xl text-center"
+                  >
+                    <p className="text-xs text-muted-foreground mb-2">
+                      Selected skills
+                    </p>
+                    <div className="flex flex-wrap gap-2 justify-center">
+                      {selectedSkills.map((skill) => (
+                        <Badge
+                          key={skill}
+                          className="gradient-primary text-white"
+                        >
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+
+            {/* Step 4: Job Preferences */}
+            {step === 4 && (
+              <motion.div
+                key="step4"
+                variants={fadeSlide}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={{ duration: 0.4 }}
+                className="space-y-6"
+              >
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full gradient-primary flex items-center justify-center">
+                    <MapPin className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-semibold mb-1">Job Preferences</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Let us match you to ideal roles
+                  </p>
+                </div>
+
+                <div className="glass p-4 rounded-xl flex items-center justify-between">
+                  <div>
+                    <Label className="font-medium">Remote Only</Label>
+                    <p className="text-xs text-muted-foreground">
+                      Show only remote roles
+                    </p>
+                  </div>
+                  <Switch checked={remoteOnly} onCheckedChange={setRemoteOnly} />
+                </div>
+
+                <div>
+                  <Label htmlFor="location">Preferred Location</Label>
+                  <Input
+                    id="location"
+                    placeholder="e.g., Bengaluru, Mumbai"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    className="mt-2 text-sm"
+                  />
+                </div>
+
+                <div>
+                  <Label>Minimum Salary: ₹{salaryMin[0]} LPA</Label>
+                  <Slider
+                    min={3}
+                    max={100}
+                    step={1}
+                    value={salaryMin}
+                    onValueChange={setSalaryMin}
+                    className="mt-4"
+                  />
+                </div>
+              </motion.div>
+            )}
+
+            {/* Step 5: Resume */}
+            {step === 5 && (
+              <motion.div
+                key="step5"
+                variants={fadeSlide}
+                initial="hidden"
+                animate="visible"
+                exit="exit"
+                transition={{ duration: 0.4 }}
+                className="space-y-6"
+              >
+                <div className="text-center mb-6">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full gradient-primary flex items-center justify-center">
+                    <Upload className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-semibold mb-1">Resume & Links</h3>
+                  <p className="text-muted-foreground text-sm">
+                    Optional, but recommended
+                  </p>
+                </div>
+
+                <div
+                  className="mt-2 glass p-8 rounded-xl border-2 border-dashed border-border hover:border-primary cursor-pointer text-center transition-smooth"
+                  onClick={() =>
+                    document.getElementById("resume")?.click()
+                  }
+                >
+                  <Upload className="w-12 h-12 mx-auto mb-3 text-muted-foreground" />
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Tap to upload PDF
+                  </p>
+                  <Input
+                    id="resume"
+                    type="file"
+                    accept=".pdf"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setResumeFile(file.name);
+                        toast.success("Resume uploaded!");
+                      }
+                    }}
+                  />
+                  {resumeFile && (
+                    <Badge variant="secondary" className="mt-3">
+                      {resumeFile}
+                    </Badge>
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="github">GitHub Profile</Label>
+                  <Input
+                    id="github"
+                    placeholder="https://github.com/username"
+                    className="mt-2 text-sm"
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="linkedin">LinkedIn Profile</Label>
+                  <Input
+                    id="linkedin"
+                    placeholder="https://linkedin.com/in/username"
+                    className="mt-2 text-sm"
+                  />
+                </div>
+
+                <div className="p-5 rounded-xl gradient-card border border-primary/20 text-sm space-y-1">
+                  <p className="font-medium text-primary mb-2">Profile Preview</p>
+                  <p><strong>Name:</strong> {name || "Not set"}</p>
+                  <p><strong>Role:</strong> {role || "Not set"}</p>
+                  <p><strong>Experience:</strong> {experience[0]} years</p>
+                  <p><strong>Bio:</strong> {bio || "No bio yet"}</p>
+                  <p><strong>Skills:</strong> {selectedSkills.join(", ") || "None"}</p>
+                  <p><strong>Location:</strong> {location || "Any"}</p>
+                  <p><strong>Min Salary:</strong> ₹{salaryMin[0]} LPA</p>
+                </div>
+              </motion.div>
+            )}
           </AnimatePresence>
 
           {/* Navigation */}
