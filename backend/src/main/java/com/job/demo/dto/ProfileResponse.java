@@ -1,18 +1,11 @@
 package com.job.demo.dto;
 
-
-
 import java.util.Set;
 
-// This DTO will combine data from User and UserProfile
 public class ProfileResponse {
-
-    // From User
     private String fullName;
     private String email;
     private String phoneNumber;
-
-    // From UserProfile
     private String targetRole;
     private int experienceYears;
     private String bio;
@@ -25,10 +18,7 @@ public class ProfileResponse {
     private String profilePictureUrl;
     private String resumeUrl;
 
-    // --- Generate Getters and Setters for ALL fields ---
-    // (Right-click -> Generate -> Getter and Setter -> Select All)
-
-    // Example getters/setters:
+    // Getters and Setters
     public String getFullName() { return fullName; }
     public void setFullName(String fullName) { this.fullName = fullName; }
     public String getEmail() { return email; }

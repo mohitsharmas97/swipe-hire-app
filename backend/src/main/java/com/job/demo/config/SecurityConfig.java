@@ -1,12 +1,15 @@
-package com.job.demo.config; // Ensure this matches your package
+package com.job.demo.config;
 
-import com.job.demo.service.CustomUserDetailsService;
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -14,14 +17,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import java.util.List;
 
-// --- ADD THESE NEW IMPORTS ---
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import com.job.demo.service.CustomUserDetailsService;
 
 @Configuration
 @EnableWebSecurity
@@ -39,8 +40,16 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/auth/register", "/login").permitAll()
+                        // Allow public access to static uploads (photos/resumes)
+                        .requestMatchers("/uploads/**").permitAll()
+                        // Allow login and register
+                        .requestMatchers("/api/auth/**", "/login", "/register").permitAll()
+                        // Secure everything else
                         .anyRequest().authenticated()
+                )
+                // PREVENT REDIRECT TO LOGIN PAGE ON ERROR
+                .exceptionHandling(e -> e
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))
                 )
                 .formLogin(form -> form
                         .loginProcessingUrl("/login")
@@ -55,7 +64,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
+        // Ensure this matches your frontend URL exactly
+        configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:3000"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
@@ -69,6 +79,7 @@ public class SecurityConfig {
     public AuthenticationSuccessHandler successHandler() {
         return (request, response, authentication) -> {
             response.setStatus(HttpStatus.OK.value());
+            response.getWriter().write("{\"message\": \"Login successful\"}");
             response.getWriter().flush();
         };
     }
@@ -77,6 +88,7 @@ public class SecurityConfig {
     public AuthenticationFailureHandler failureHandler() {
         return (request, response, exception) -> {
             response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.getWriter().write("{\"error\": \"Invalid credentials\"}");
             response.getWriter().flush();
         };
     }
@@ -89,11 +101,6 @@ public class SecurityConfig {
         return authProvider;
     }
 
-    // --- THIS IS THE NEW BEAN YOU MUST ADD ---
-    /**
-     * This bean exposes the Spring Security AuthenticationManager.
-     * We will inject this into our AuthController to manually log users in.
-     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
