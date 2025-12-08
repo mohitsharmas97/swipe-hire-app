@@ -223,9 +223,9 @@ const Profile = () => {
             <Button variant="ghost" size="icon" onClick={() => navigate("/settings")} aria-label="Settings">
               <Settings className="h-5 w-5" />
             </Button>
-            <Button variant="ghost" size="icon" onClick={() => openModal("profile")} aria-label="Edit profile">
+            {/* <Button variant="ghost" size="icon" onClick={() => openModal("profile")} aria-label="Edit profile">
               <Edit className="h-5 w-5" />
-            </Button>
+            </Button> */}
           </div>
         </div>
       </header>
